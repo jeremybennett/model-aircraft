@@ -1,5 +1,15 @@
 2015-12-20  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	* simple-glider/wing-left.scad (wing_left_3d): Deleted.
+	(wing_left): Modify to rotate after adding pegs and use common 3D
+	wing.
+	* simple-glider/wing-right.scad (wing_right_3d): Deleted.
+	(wing_right): Use common 3D wing.
+	* simple-glider/wings-common.scad (wing_3d): Created from
+	wing_right_3d.
+
+2015-12-20  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	ChangeLog: Created.
 	LICENSE: Created.
 	README.md: Updated with details of licensing and simple-glider.

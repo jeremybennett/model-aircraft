@@ -48,3 +48,11 @@ module wing_2d () {
             circle (r = micro_r);
     }
 }
+
+
+// 3D wing
+module wing_3d () {
+    translate (v = [0, 10, 0])
+        linear_extrude (height = wing_z, slices = 1, convexity = 1)
+            wing_2d ();
+}

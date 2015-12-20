@@ -17,26 +17,20 @@
 
 include <wings-common.scad>
 
-// 3D wing
-module wing_left_3d () {
-    translate (v = [0, -10, 0])
-        linear_extrude (height = wing_z, slices = 1, convexity = 1)
-            rotate (a = [180, 0, 0])
-                wing_2d ();
-}
-
 
 // Sockets to join together
 module wing_left () {
-    union () {
-        wing_left_3d ();
-        translate (v = [0, -10 - 5, wing_z / 2])
-            cube (size = [peg_len - gap, wing_z - gap, wing_z], center = true);
-        translate (v = [0, -10 - max_y / 2, wing_z / 2])
-            cube (size = [peg_len - gap, wing_z - gap, wing_z], center = true);
-        translate (v = [0, -10 - max_y + 5, wing_z / 2])
-            cube (size = [peg_len - gap, wing_z - gap, wing_z], center = true);
-    }
+    mirror ([0, 1, 0])
+        union () {
+            wing_3d ();
+            translate (v = [0, 10 + 5, wing_z / 2])
+                cube (size = [peg_len - gap, wing_z - gap, wing_z], center = true);
+            translate (v = [0, 10 + max_y / 2, wing_z / 2])
+                cube (size = [peg_len - gap, wing_z - gap, wing_z], center = true);
+            translate (v = [0, 10 + max_y - 5, wing_z / 2])
+                cube (size = [peg_len - gap, wing_z - gap, wing_z], center = true);
+        }
 }
+
 
 wing_left ();

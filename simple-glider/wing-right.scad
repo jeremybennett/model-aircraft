@@ -17,18 +17,11 @@
 
 include <wings-common.scad>
 
-// 3D wing
-module wing_right_3d () {
-    translate (v = [0, 10, 0])
-        linear_extrude (height = wing_z, slices = 1, convexity = 1)
-            wing_2d ();
-}
-
 
 // Pegs and sockets to join together
 module wing_right () {
     difference () {
-        wing_right_3d ();
+        wing_3d ();
         translate (v = [0, 10 + 5, wing_z / 2])
             cube (size = [peg_len + gap, wing_z + gap, 50], center = true);
         translate (v = [0, 10 + max_y / 2, wing_z / 2])
