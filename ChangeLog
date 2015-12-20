@@ -1,0 +1,11 @@
+2015-12-20  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	ChangeLog: Created.
+	LICENSE: Created.
+	README.md: Updated with details of licensing and simple-glider.
+	* simple-glider/fuselage.scad: Created.
+	* simple-glider/rudder.scad: Created.
+	* simple-glider/tailwing.scad: Created.
+	* simple-glider/wing-left.scad: Created.
+	* simple-glider/wing-right.scad: Created.
+	* simple-glider/wings-common.scad: Created.
