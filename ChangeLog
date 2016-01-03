@@ -1,3 +1,8 @@
+2016-01-03  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	* simple-glider/constants.h: Created.
+	* simple-glider/fuselage.scad: Created.
+
 2015-12-20  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	* .gitignore: Created.
