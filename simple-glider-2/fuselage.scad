@@ -23,13 +23,16 @@
 include <constants.h>
 
 // Useful constants
-MINK_R = 5;				// Minkowski radius
+MINK_R = 5;                             // Minkowski radius
 
-AFT_L  = 85;				// Length of aft cylinder
-FORE_L = 65;				// Length of forward cylinder
+AFT_L  = 85;                            // Length of aft cylinder
+FORE_L = 65;                            // Length of forward cylinder
 
-MIN_R =  6;				// Minimum cylinder radius
-MAX_R = 10;				// Maximum cylinder radius
+MIN_R =  6;                             // Minimum cylinder radius
+MAX_R = 10;                             // Maximum cylinder radius
+
+// Half the angle at which the aft top of the fuselage slopes down.
+THETA = atan ((MAX_R - MIN_R) / (AFT_L - MINK_R));
 
 // Smooth corners
 $fn = 96;
@@ -39,18 +42,17 @@ $fn = 96;
 module fore_cyl () {
     translate (v = [AFT_L, 0, MAX_R])
         rotate (a = [0, 90, 0])
-	    cylinder (r = MAX_R - MINK_R, h = FORE_L - MINK_R, center = false);
+            cylinder (r = MAX_R - MINK_R, h = FORE_L - MINK_R, center = false);
 }
 
 // aft cylinder. Because this is a cone, we need a bit more rotation
 
 module aft_cyl () {
-    theta = atan ((MAX_R - MIN_R) / (AFT_L - MINK_R));
-    off = (MIN_R - MINK_R) * cos (theta);
+    off = (MIN_R - MINK_R) * cos (THETA);
     translate (v = [MINK_R, 0, off + MINK_R])
-        rotate (a = [0, 90 - theta, 0])
-	    cylinder (r1 = MIN_R - MINK_R, r2 = MAX_R - MINK_R,
-	              h = AFT_L - MINK_R, center = false);
+        rotate (a = [0, 90 - THETA, 0])
+            cylinder (r1 = MIN_R - MINK_R, r2 = MAX_R - MINK_R,
+                      h = AFT_L - MINK_R, center = false);
 }
 
 
@@ -59,11 +61,11 @@ module aft_cyl () {
 
 module fuse_hull () {
     minkowski () {
-	sphere (r = MINK_R);
-	hull () {
-	    fore_cyl ();
-	    aft_cyl ();
-	}
+        sphere (r = MINK_R);
+        hull () {
+            fore_cyl ();
+            aft_cyl ();
+        }
     }
 }
 
@@ -77,20 +79,23 @@ module fuselage () {
         translate (v = [0, 0, MIN_R])
             rotate (a = [0, 5, 0])
                 cube (size = [TAIL_MAX_X, 50, TAIL_THICK + GAP2],
-		      center = true);
+                      center = true);
         // Main wing
         translate (v = [WING_OFF_X + WING_MAX_X / 2, 0, WING_OFF_Z])
             cube (size = [40, 50, WING_THICK + GAP2], center = true);
-        // Pin slots for tailplane
+        // Pin slots for tailplane. These rotate to align
         translate (v = [FIN_OFF1, 0, MIN_R + FIN_PIN_DEPTH * 3 - GAP2])
-            cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
-	  	          FIN_PIN_DEPTH * 4], center = true);
+            rotate (a = [0, -THETA * 2, 0])
+                cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
+                              FIN_PIN_DEPTH * 4], center = true);
         translate (v = [FIN_OFF2, 0, MIN_R + FIN_PIN_DEPTH * 3 - GAP2])
-            cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
-	  	          FIN_PIN_DEPTH * 4], center = true);
+            rotate (a = [0, -THETA * 2, 0])
+                cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
+                              FIN_PIN_DEPTH * 4], center = true);
         translate (v = [FIN_OFF3, 0, MIN_R + FIN_PIN_DEPTH * 3 - GAP2])
-            cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
-	  	          FIN_PIN_DEPTH * 4], center = true);
+            rotate (a = [0, -THETA * 2, 0])
+                cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
+                              FIN_PIN_DEPTH * 4], center = true);
     }
 }
 
@@ -99,9 +104,9 @@ module fuselage_left () {
     translate (v = [0, -10, 0])
         rotate (a = [90, 0, 0])
             intersection () {
-   	        fuselage ();
-	        translate (v = [0, 500, 0])
-	            cube (size = [1000, 1000, 1000], center = true);
+                fuselage ();
+                translate (v = [0, 500, 0])
+                    cube (size = [1000, 1000, 1000], center = true);
             }
 }
 
@@ -109,9 +114,9 @@ module fuselage_right () {
     translate (v = [0, 10, 0])
         rotate (a = [-90, 0, 0])
             intersection () {
-   	        fuselage ();
-	        translate (v = [0, -500, 0])
-	            cube (size = [1000, 1000, 1000], center = true);
+                fuselage ();
+                translate (v = [0, -500, 0])
+                    cube (size = [1000, 1000, 1000], center = true);
             }
 }
 

@@ -1,3 +1,9 @@
+2016-01-04  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	* simple-glider/fuselage.scad (aft_cyl): Move computation of THETA
+	to global level, so can be used elsewhere.
+	(fuselage): Place fin pins at right angle to fuselage top.
+
 2016-01-03  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	* simple-glider/constants.h: Created.
