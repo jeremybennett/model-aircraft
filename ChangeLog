@@ -1,3 +1,15 @@
+2016-01-05  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	* simple-glider-2/constants.h: Add PEG_THICK
+	* simple-glider-2/fuselage.scad: Add FUSE_WALL_THICK
+	(nose): Created
+	(module fore_cyl): Allow for sphere on nose.
+	(bare_hull, inner_hull, full_hull): Created.
+	(fuse_hull): Create as shell from subsidiary modules.
+	(fuselage_no_pegs): Renaming of old fuselage module.
+	(peg_hole, all_peg_holes): Created.
+	(module fuselage): Now union of fuselage_no_pegs and all_peg_holes.
+
 2016-01-04  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	* simple-glider-2/tailwing.scad: Created.
