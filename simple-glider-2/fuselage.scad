@@ -186,7 +186,7 @@ module fuselage () {
             cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
                          FIN_PIN_DEPTH * 4], center = true);
         translate (v = [FIN_OFF3, 0, MIN_R])
-            cube (size = [FIN_THICK + GAPYX2, FIN_THICK + GAPZ2,
+            cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
                           FIN_PIN_DEPTH * 4], center = true);
     }
 }

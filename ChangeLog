@@ -1,5 +1,9 @@
 2016-01-06  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	* simple-glider-2/fuselage.scad (fuselage): Fix typo in constant.
+
+2016-01-06  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	* simple-glider-2/constants.h: Separate GAP and GAP2 into variants
 	for XY and Z dimensions, move PEG_THICK into fuselage.scad.
 	* simple-glider-2/fuselage.scad: Add constants for fuselage
