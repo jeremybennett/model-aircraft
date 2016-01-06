@@ -20,9 +20,11 @@
 
 
 // General constants
+
 include <constants.h>
 
 // Useful constants
+
 MINK_R = 5;                             // Minkowski radius
 
 AFT_L  = 85;                            // Length of aft cylinder
@@ -33,10 +35,21 @@ MAX_R = 10;                             // Maximum cylinder radius
 
 FUSE_WALL_THICK = 0.8;                  // Thickness of the fuselage wall.
 
+FUSE_SEP = 10;				// Half spacing between hull halves
+
+// Connection peg dimensions
+
+PEG_THICK = NOZZLE_D * 3;	        // Peg will be printed vertically
+
+PEG_OUTER = PEG_THICK + GAPXY2 + FUSE_WALL_THICK * 2;
+PEG_INNER = PEG_THICK + GAPXY2;
+
 // Half the angle at which the aft top of the fuselage slopes down.
+
 THETA = atan ((MAX_R - MIN_R) / (AFT_L - MINK_R));
 
 // Smooth corners
+
 $fn = 96;
 
 // Nose. Why does OpenScad barf if we don't have the closing semicolon - it
@@ -108,44 +121,17 @@ module fuse_hull () {
 }
 
 
-// Fuselage has holes cut out, but no pegs yet for joining
-
-module fuselage_no_pegs () {
-    difference () {
-        fuse_hull ();
-        // Tailplane
-        translate (v = [0, 0, MIN_R])
-            rotate (a = [0, 5, 0])
-                cube (size = [TAIL_MAX_X, 50, TAIL_THICK + GAP2],
-                      center = true);
-        // Main wing
-        translate (v = [WING_OFF_X + WING_MAX_X / 2, 0, WING_OFF_Z])
-            cube (size = [40, 50, WING_THICK + GAP2], center = true);
-        // Pin slots for tailplane. These rotate to align
-        translate (v = [FIN_OFF1, 0, MIN_R + FIN_PIN_DEPTH * 3 - GAP2])
-            rotate (a = [0, -THETA * 2, 0])
-                cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
-                              FIN_PIN_DEPTH * 4], center = true);
-        translate (v = [FIN_OFF2, 0, MIN_R + FIN_PIN_DEPTH * 3 - GAP2])
-            rotate (a = [0, -THETA * 2, 0])
-                cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
-                              FIN_PIN_DEPTH * 4], center = true);
-        translate (v = [FIN_OFF3, 0, MIN_R + FIN_PIN_DEPTH * 3 - GAP2])
-            rotate (a = [0, -THETA * 2, 0])
-                cube (size = [FIN_THICK + GAP2, FIN_THICK + GAP2,
-                              FIN_PIN_DEPTH * 4], center = true);
-    }
-}
-
-
-// Peg hole for fixing the halves together
+// Peg hole for fixing the halves together. Since it is internal, we need to
+// add an explicit brim.
 
 module peg_hole () {
-    OUTER = PEG_THICK + GAP2 + FUSE_WALL_THICK * 2;
-    INNER = PEG_THICK + GAP2;
+    BRIM = PEG_OUTER + 7;
     difference () {
-        cube (size = [OUTER, 100, OUTER], center = true);
-        cube (size = [INNER, 100, INNER], center = true);
+	union () {
+            cube (size = [PEG_OUTER, 100, PEG_OUTER], center = true);
+	    cube (size = [BRIM, LAYER1_H * 2, BRIM], center = true);
+	}
+        cube (size = [PEG_INNER, 100, PEG_INNER], center = true);
     }
 }
 
@@ -169,17 +155,45 @@ module all_peg_holes () {
 }
 
 
-// Fuselage adds the peg holes
-module fuselage () {
+// Adds the peg holes to the fuselage hull
+
+module fuse_hull_with_pegs () {
     union () {
-        fuselage_no_pegs ();
+        fuse_hull ();
         all_peg_holes ();
     }
 }
 
 
+// Fuselage has holes cut out for wing and tailplane
+
+module fuselage () {
+    difference () {
+        fuse_hull_with_pegs ();
+        // Tailplane
+        translate (v = [0, 0, MIN_R])
+            rotate (a = [0, 5, 0])
+                cube (size = [TAIL_MAX_X, 50, TAIL_THICK + GAPXY2],
+                      center = true);
+        // Main wing
+        translate (v = [WING_OFF_X + WING_MAX_X / 2, 0, WING_OFF_Z])
+            cube (size = [40, 50, WING_THICK + GAPXY2], center = true);
+        // Pin slots for tailplane.
+        translate (v = [FIN_OFF1, 0, MIN_R])
+            cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
+                          FIN_PIN_DEPTH * 4], center = true);
+        translate (v = [FIN_OFF2, 0, MIN_R])
+            cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
+                         FIN_PIN_DEPTH * 4], center = true);
+        translate (v = [FIN_OFF3, 0, MIN_R])
+            cube (size = [FIN_THICK + GAPYX2, FIN_THICK + GAPZ2,
+                          FIN_PIN_DEPTH * 4], center = true);
+    }
+}
+
+
 module fuselage_left () {
-    translate (v = [0, -10, 0])
+    translate (v = [0, -FUSE_SEP, 0])
         rotate (a = [90, 0, 0])
             intersection () {
                 fuselage ();
@@ -189,7 +203,7 @@ module fuselage_left () {
 }
 
 module fuselage_right () {
-    translate (v = [0, 10, 0])
+    translate (v = [0, FUSE_SEP, 0])
         rotate (a = [-90, 0, 0])
             intersection () {
                 fuselage ();
@@ -198,5 +212,28 @@ module fuselage_right () {
             }
 }
 
+
+// Peg to insert into the connection holes
+
+module peg () {
+    translate (v = [0, 0, MIN_R / 2])
+        cube (size = [PEG_THICK, PEG_THICK, MIN_R], center = true);
+}
+
+
+// Set of pegs
+
+module peg_set () {
+    union () {
+	translate (v = [FUSE_SEP, 0, 0])
+            peg ();
+	translate (v = [FUSE_SEP * 3, 0, 0])
+            peg ();
+	translate (v = [FUSE_SEP * 5, 0, 0])
+            peg ();
+	}
+}
+
 fuselage_left ();
+peg_set ();
 fuselage_right ();

@@ -14,12 +14,15 @@
 
 // Constants common to multiple components
 
-GAP  = 0.4;			// Gap to allow for tight push fit.
-GAP2 = GAP * 2;
-
 LAYER_H  = 0.30;		// Height of all except first layer
 LAYER1_H = 0.35;		// Height of first layer
 NOZZLE_D = 0.40;		// Nozzle diameter
+
+GAPXY  = NOZZLE_D;		// Horizontal gap to allow for tight push fit.
+GAPXY2 = GAPXY * 2;
+
+GAPZ  = LAYER_H;		// Vertical gap to allow for tight push fit.
+GAPZ2 = GAPZ * 2;
 
 TAIL_THICK = LAYER1_H + LAYER_H * 2;
 TAIL_MAX_X = 25.0;		// Tailplane width
@@ -35,5 +38,3 @@ FIN_PIN_DEPTH = 6.0;
 FIN_OFF1 = 10 + 3;
 FIN_OFF2 = 10 + FIN_MAX_X / 2;
 FIN_OFF3 = 10 + FIN_MAX_X - 3;
-
-PEG_THICK = LAYER1_H + LAYER_H * 2;
