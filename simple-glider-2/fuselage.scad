@@ -39,10 +39,10 @@ FUSE_SEP = 10;                          // Half spacing between hull halves
 
 // Connection peg dimensions
 
-PEG_THICK = NOZZLE_D * 3;               // Peg will be printed vertically
+PEG_R = NOZZLE_D * 3;			// Peg will be printed vertically
 
-PEG_OUTER = PEG_THICK + GAPXY2 + FUSE_WALL_THICK * 2;
-PEG_INNER = PEG_THICK + GAPXY2;
+PEG_OUTER = PEG_R + GAPXY2 + NOZZLE_D * 2;
+PEG_INNER = PEG_R + GAPXY2;
 
 // Half the angle at which the aft top of the fuselage slopes down.
 
@@ -125,10 +125,11 @@ module fuse_hull () {
 // for this to work!
 
 module peg_hole () {
-    difference () {
-        cube (size = [PEG_OUTER, 100, PEG_OUTER], center = true);
-        cube (size = [PEG_INNER, 100, PEG_INNER], center = true);
-    }
+    rotate (a = [90, 0, 0])
+        difference () {
+            cylinder (r = PEG_OUTER, h = 100, center = true);
+            cylinder (r = PEG_INNER, h = 100, center = true);
+	}
 }
 
 
@@ -213,7 +214,7 @@ module fuselage_right () {
 
 module peg () {
     translate (v = [0, 0, MIN_R / 2])
-        cube (size = [PEG_THICK, PEG_THICK, MIN_R], center = true);
+        cylinder (r = PEG_R, h= MIN_R, center = true);
 }
 
 

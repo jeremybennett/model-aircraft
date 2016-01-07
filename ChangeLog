@@ -1,5 +1,11 @@
 2016-01-07  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
+	* simple-glider-2/fuselage.scad: Rename PEG_THICK as PEG_R
+	(peg_hole): Create a circular hole.
+	(peg): Create a circular peg.
+
+2016-01-07  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
 	* simple-glider-2/fuselage.scad: Make fuselage wall thicker.
 	(module peg): No need for explicit brim.
 
