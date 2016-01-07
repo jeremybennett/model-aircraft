@@ -33,13 +33,13 @@ FORE_L = 65;                            // Length of forward cylinder
 MIN_R =  6;                             // Minimum cylinder radius
 MAX_R = 10;                             // Maximum cylinder radius
 
-FUSE_WALL_THICK = 0.8;                  // Thickness of the fuselage wall.
+FUSE_WALL_THICK = NOZZLE_D * 2 * sqrt (2);  // Thickness of the fuselage wall
 
-FUSE_SEP = 10;				// Half spacing between hull halves
+FUSE_SEP = 10;                          // Half spacing between hull halves
 
 // Connection peg dimensions
 
-PEG_THICK = NOZZLE_D * 3;	        // Peg will be printed vertically
+PEG_THICK = NOZZLE_D * 3;               // Peg will be printed vertically
 
 PEG_OUTER = PEG_THICK + GAPXY2 + FUSE_WALL_THICK * 2;
 PEG_INNER = PEG_THICK + GAPXY2;
@@ -121,16 +121,12 @@ module fuse_hull () {
 }
 
 
-// Peg hole for fixing the halves together. Since it is internal, we need to
-// add an explicit brim.
+// Peg hole for fixing the halves together.  Essential to print with a brim
+// for this to work!
 
 module peg_hole () {
-    BRIM = PEG_OUTER + 7;
     difference () {
-	union () {
-            cube (size = [PEG_OUTER, 100, PEG_OUTER], center = true);
-	    cube (size = [BRIM, LAYER1_H * 2, BRIM], center = true);
-	}
+        cube (size = [PEG_OUTER, 100, PEG_OUTER], center = true);
         cube (size = [PEG_INNER, 100, PEG_INNER], center = true);
     }
 }
@@ -225,13 +221,13 @@ module peg () {
 
 module peg_set () {
     union () {
-	translate (v = [FUSE_SEP, 0, 0])
+        translate (v = [FUSE_SEP, 0, 0])
             peg ();
-	translate (v = [FUSE_SEP * 3, 0, 0])
+        translate (v = [FUSE_SEP * 3, 0, 0])
             peg ();
-	translate (v = [FUSE_SEP * 5, 0, 0])
+        translate (v = [FUSE_SEP * 5, 0, 0])
             peg ();
-	}
+        }
 }
 
 fuselage_left ();
