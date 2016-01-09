@@ -1,3 +1,17 @@
+2016-01-09  Jeremy Bennett  <jeremy.bennett@embecosm.com>
+
+	Go back to a solid fuselage.
+
+	* simple-glider-2/fuselage.scad: Rename MIN_R as MIN_H and MAX_R
+	as MAX_H. Remove PEG_R, PEG_OUTER, PEG_INNER, FUSE_WALL_THICK and
+	FUSE_SEP. Add FUSE_W. Generate only fuselage_side.
+	(nose, fore_cyl, after_cyl, bare_hull, peg_hole, all_peg_holes)
+	(fuse_hull_with_pegs, fuselage_left, fuselage_right, peg)
+	(peg_set): Delete.
+	(module fuse_hull): Rewrite as hull of small spheres.
+	(module fuselage): Base on fuse_hull.
+	(fuselage_side): Created.
+
 2016-01-07  Jeremy Bennett  <jeremy.bennett@embecosm.com>
 
 	* simple-glider-2/fuselage.scad: Rename PEG_THICK as PEG_R

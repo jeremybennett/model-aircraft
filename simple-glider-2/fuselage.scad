@@ -12,11 +12,14 @@
 
 // A very simple hand thrown glider for indoor use.
 
-// This is the fuselage.  It is deliberately a shell - for low weight we don't
-// want a solid shape.
+// This is the fuselage.  We tried doing as a shell to keep weight down, but
+// that just didn't work.  It's too hard to control the wall thickness
+// throughout.  We now do it as a solid, but it should be printed with a very
+// low infill percentage, if any, and a thinner skin (2 layers rather than 3).
 
-// We have a pair of cylinders and a sphere, which we join, then use a
-// minkowsky hull to round all the edges.
+// We now mark the corners with spheres, then create a hull.  By printing on
+// its side, we can print as a solid shape, rather than two halves to be
+// joined.
 
 
 // General constants
@@ -25,139 +28,57 @@ include <constants.h>
 
 // Useful constants
 
-MINK_R = 5;                             // Minkowski radius
+MINK_R = 2;                             // Minkowski radius
 
-AFT_L  = 85;                            // Length of aft cylinder
-FORE_L = 65;                            // Length of forward cylinder
+AFT_L  = 85;                            // Length of aft block
+FORE_L = 65;                            // Length of forward block
 
-MIN_R =  6;                             // Minimum cylinder radius
-MAX_R = 10;                             // Maximum cylinder radius
+FUSE_W = 8;				// Width of the fuselage
 
-FUSE_WALL_THICK = NOZZLE_D * 2 * sqrt (2);  // Thickness of the fuselage wall
-
-FUSE_SEP = 10;                          // Half spacing between hull halves
-
-// Connection peg dimensions
-
-PEG_R = NOZZLE_D * 3;			// Peg will be printed vertically
-
-PEG_OUTER = PEG_R + GAPXY2 + NOZZLE_D * 2;
-PEG_INNER = PEG_R + GAPXY2;
+MIN_H = 12;                             // Minimum fuselage height
+MAX_H = 20;                             // Maximum fuselage height
 
 // Half the angle at which the aft top of the fuselage slopes down.
 
-THETA = atan ((MAX_R - MIN_R) / (AFT_L - MINK_R));
+THETA = atan ((MAX_H - MIN_H) / (AFT_L - MINK_R));
 
 // Smooth corners
 
 $fn = 96;
 
-// Nose. Why does OpenScad barf if we don't have the closing semicolon - it
-// isn't required!
-
-module nose () {
-    translate (v = [AFT_L + FORE_L - MAX_R, 0, MAX_R])
-        sphere (r = MAX_R - MINK_R);
-}
-
-
-// Forward cylinder
-
-module fore_cyl () {
-    translate (v = [AFT_L, 0, MAX_R])
-        rotate (a = [0, 90, 0])
-            cylinder (r = MAX_R - MINK_R, h = FORE_L - MAX_R - MINK_R,
-                      center = false);
-}
-
-// aft cylinder. Because this is a cone, we need a bit more rotation
-
-module aft_cyl () {
-    off = (MIN_R - MINK_R) * cos (THETA);
-    translate (v = [MINK_R, 0, off + MINK_R])
-        rotate (a = [0, 90 - THETA, 0])
-            cylinder (r1 = MIN_R - MINK_R, r2 = MAX_R - MINK_R,
-                      h = AFT_L - MINK_R, center = false);
-}
-
-
-// Bare hull. Use a hull to deal with the small gap between fuselate sections.
-
-module bare_hull () {
-    hull () {
-        nose ();
-        fore_cyl ();
-        aft_cyl ();
-    }
-}
-
-
-// Inner hull has a smaller minkowski sphere added to smooth corners.
-
-module inner_hull () {
-    minkowski () {
-        sphere (r = MINK_R - FUSE_WALL_THICK);
-        bare_hull ();
-    }
-}
-
-// Full hull has a larger minkowski sphere added to smooth corners.
-
-module full_hull () {
-    minkowski () {
-        sphere (r = MINK_R);
-        bare_hull ();
-    }
-}
-
-
 // Complete fuselage shape.
 
 module fuse_hull () {
-    difference () {
-        full_hull ();
-        inner_hull ();
-    }
-}
-
-
-// Peg hole for fixing the halves together.  Essential to print with a brim
-// for this to work!
-
-module peg_hole () {
-    rotate (a = [90, 0, 0])
-        difference () {
-            cylinder (r = PEG_OUTER, h = 100, center = true);
-            cylinder (r = PEG_INNER, h = 100, center = true);
-	}
-}
-
-
-// Set of peg holes to add to the fuselage
-module all_peg_holes () {
-    intersection () {
-        full_hull ();
-        union () {
-            // Aft peg hole
-            translate (v = [(FIN_OFF1 + FIN_OFF2) / 2, 0, MIN_R])
-                peg_hole ();
-            // Mid peg hole (above center)
-            translate (v = [AFT_L, 0, MAX_R * 3 / 2])
-                peg_hole ();
-            // Forward peg hole
-            translate (v = [AFT_L + FORE_L - MAX_R, 0, MAX_R])
-                peg_hole ();
-        }
-   }
-}
-
-
-// Adds the peg holes to the fuselage hull
-
-module fuse_hull_with_pegs () {
-    union () {
-        fuse_hull ();
-        all_peg_holes ();
+    Y_OFF_P = FUSE_W / 2 - MINK_R;	// Positive offset in Y direction
+    Y_OFF_N = -Y_OFF_P;			// Negative offset in Y direction
+    hull () {
+	// Corners of stern
+        translate (v = [MINK_R, Y_OFF_P, MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [MINK_R, Y_OFF_N, MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [MINK_R, Y_OFF_P, MIN_H - MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [MINK_R, Y_OFF_N, MIN_H - MINK_R])
+	    sphere (r = MINK_R);
+	// Corners of mid-point
+        translate (v = [AFT_L, Y_OFF_P, MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [AFT_L, Y_OFF_N, MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [AFT_L, Y_OFF_P, MAX_H - MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [AFT_L, Y_OFF_N, MAX_H - MINK_R])
+	    sphere (r = MINK_R);
+	// Corners of forward
+        translate (v = [AFT_L + FORE_L - MINK_R, Y_OFF_P, MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [AFT_L + FORE_L - MINK_R, Y_OFF_N, MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [AFT_L + FORE_L - MINK_R, Y_OFF_P, MAX_H - MINK_R])
+	    sphere (r = MINK_R);
+        translate (v = [AFT_L + FORE_L - MINK_R, Y_OFF_N, MAX_H - MINK_R])
+	    sphere (r = MINK_R);
     }
 }
 
@@ -166,9 +87,9 @@ module fuse_hull_with_pegs () {
 
 module fuselage () {
     difference () {
-        fuse_hull_with_pegs ();
+        fuse_hull ();
         // Tailplane
-        translate (v = [0, 0, MIN_R])
+        translate (v = [0, 0, MIN_H / 2])
             rotate (a = [0, 5, 0])
                 cube (size = [TAIL_MAX_X, 50, TAIL_THICK + GAPXY2],
                       center = true);
@@ -176,61 +97,27 @@ module fuselage () {
         translate (v = [WING_OFF_X + WING_MAX_X / 2, 0, WING_OFF_Z])
             cube (size = [40, 50, WING_THICK + GAPXY2], center = true);
         // Pin slots for tailplane.
-        translate (v = [FIN_OFF1, 0, MIN_R])
-            cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
-                          FIN_PIN_DEPTH * 4], center = true);
-        translate (v = [FIN_OFF2, 0, MIN_R])
-            cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
-                         FIN_PIN_DEPTH * 4], center = true);
-        translate (v = [FIN_OFF3, 0, MIN_R])
-            cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
-                          FIN_PIN_DEPTH * 4], center = true);
+        translate (v = [FIN_OFF1, 0, MIN_H])
+	    rotate (a = [0, -THETA, 0])
+                cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
+                              FIN_PIN_DEPTH * 2], center = true);
+        translate (v = [FIN_OFF2, 0, MIN_H])
+	    rotate (a = [0, -THETA, 0])
+                cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
+                              FIN_PIN_DEPTH * 2], center = true);
+        translate (v = [FIN_OFF3, 0, MIN_H])
+	    rotate (a = [0, -THETA, 0])
+                cube (size = [FIN_THICK + GAPXY2, FIN_THICK + GAPZ2,
+                              FIN_PIN_DEPTH * 2], center = true);
     }
 }
 
 
-module fuselage_left () {
-    translate (v = [0, -FUSE_SEP, 0])
-        rotate (a = [90, 0, 0])
-            intersection () {
-                fuselage ();
-                translate (v = [0, 500, 0])
-                    cube (size = [1000, 1000, 1000], center = true);
-            }
-}
-
-module fuselage_right () {
-    translate (v = [0, FUSE_SEP, 0])
+module fuselage_side () {
+    translate (v = [0, 0, FUSE_W / 2])
         rotate (a = [-90, 0, 0])
-            intersection () {
-                fuselage ();
-                translate (v = [0, -500, 0])
-                    cube (size = [1000, 1000, 1000], center = true);
-            }
+	    fuselage ();
 }
 
 
-// Peg to insert into the connection holes
-
-module peg () {
-    translate (v = [0, 0, MIN_R / 2])
-        cylinder (r = PEG_R, h= MIN_R, center = true);
-}
-
-
-// Set of pegs
-
-module peg_set () {
-    union () {
-        translate (v = [FUSE_SEP, 0, 0])
-            peg ();
-        translate (v = [FUSE_SEP * 3, 0, 0])
-            peg ();
-        translate (v = [FUSE_SEP * 5, 0, 0])
-            peg ();
-        }
-}
-
-fuselage_left ();
-peg_set ();
-fuselage_right ();
+fuselage_side ();
